@@ -16,6 +16,7 @@ object MediaPicker {
     private const val tag = "MediaPicker_Tag"
     internal val resultSubjectMap = hashMapOf<String, Subject<Notification<Pair<MediaType, Uri>>>>()
     private val fragmentMap = hashMapOf<String, MediaPickerInternalFragment>()
+
     var imageDirectory: String = "$sdCardPath/$mainFolder"
 
     fun fromGallery(activity: AppCompatActivity, mediaType: MediaType) {

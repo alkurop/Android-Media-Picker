@@ -10,7 +10,6 @@ import android.support.v4.content.FileProvider
 import android.webkit.MimeTypeMap
 import io.reactivex.Notification
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.Subject
 import java.io.File
 
@@ -105,27 +104,17 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 val contentUri = data.data
                 if (contentUri !== null) {
-                    copyToLocal(contentUri)
-                            .subscribeOn(Schedulers.io())
-                            .subscribe({
-                                resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
-                            }, {
-                                Notification.createOnError<Uri>(it)
-                            })
+                    resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, contentUri)))
                 } else {
                     resultSubject.onNext(Notification.createOnError(error))
                 }
             }
         } else if (requestCode == CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             if (pendingCameraUri != null) {
-                copyToLocal(pendingCameraUri!!)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({
-                            galleryAddPic(it)
-                            resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
-                        }, {
-                            Notification.createOnError<Uri>(it)
-                        })
+
+                galleryAddPic(pendingCameraUri!!)
+                resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, pendingCameraUri!!)))
+
             } else {
                 resultSubject.onNext(Notification.createOnError(error))
             }
@@ -136,6 +125,7 @@ internal class MediaPickerInternalFragment : Fragment() {
         handleResult(requestCode, resultCode, data)
     }
 
+    //unused method. If you decide to use ut plz add comment why
     private fun copyToLocal(uri: Uri): Observable<Uri> {
         return Observable.fromCallable {
             val contentResolver = activity.contentResolver
