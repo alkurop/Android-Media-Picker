@@ -3,7 +3,6 @@ package com.alkurop.github.mediapicker
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.github.alkurop.jpermissionmanager.PermissionOptionalDetails
@@ -13,10 +12,6 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     lateinit var permissionMananager: PermissionsManager
-
-    val mainFolder = "TestAPP"
-    val sdCardPath = Environment.getExternalStorageDirectory()
-    val filePath = "${sdCardPath}/${mainFolder}"
 
     val subscriber: ((Pair<MediaType, Uri>) -> Unit) = {
         Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
