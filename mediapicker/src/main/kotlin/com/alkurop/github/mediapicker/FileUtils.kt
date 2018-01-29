@@ -7,11 +7,10 @@ import java.io.InputStream
 import java.io.OutputStream
 
 
-
 fun getFileDirectory(): String {
 
-    var directory: File = File(Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "images");
+    val directory = File(Environment.getExternalStorageDirectory().absolutePath
+            + File.separator + "images")
     if (!directory.exists()) {
         directory.mkdirs();
     }
@@ -35,7 +34,7 @@ fun clearFolder(file: File?) {
 fun InputStream?.safeClose() {
     try {
         this?.close()
-    } catch(e: IOException) {
+    } catch (e: IOException) {
         e.printStackTrace()
     }
 }
@@ -44,7 +43,7 @@ fun InputStream?.safeClose() {
 fun OutputStream?.safeClose() {
     try {
         this?.close()
-    } catch(e: IOException) {
+    } catch (e: IOException) {
         e.printStackTrace()
     }
 }
