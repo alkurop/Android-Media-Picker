@@ -10,6 +10,8 @@ import android.support.v4.content.FileProvider
 import android.webkit.MimeTypeMap
 import io.reactivex.Notification
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.Subject
 import java.io.File
 
@@ -102,7 +104,9 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 val contentUri = data.data
                 if (contentUri !== null) {
-                    resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, contentUri)))
+                    copyToLocal(contentUri).subscribeOn(io()).observeOn(mainThread()).subscribe {
+                        resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
+                    }
                 } else {
                     resultSubject.onNext(Notification.createOnError(error))
                 }
