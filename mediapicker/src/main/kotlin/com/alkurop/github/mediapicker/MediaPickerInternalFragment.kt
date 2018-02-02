@@ -22,10 +22,11 @@ internal class MediaPickerInternalFragment : Fragment() {
         private const val URI_KEY = "URI_KEY"
         private const val MEDIA_TYPE_KEY = "MEDIA_TYPE_KEY"
 
-        fun createInstance(subscriberName: String): MediaPickerInternalFragment {
+        fun createInstance(subscriberName: String, mediaType: MediaType): MediaPickerInternalFragment {
             val fragment = MediaPickerInternalFragment()
             val args = Bundle()
             args.putString(SUBSCRIBER_NAME, subscriberName)
+            args.putInt(MEDIA_TYPE_KEY, mediaType.ordinal)
             fragment.arguments = args
             return fragment
         }
@@ -48,9 +49,6 @@ internal class MediaPickerInternalFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle?) {
         val state = outState ?: Bundle()
         state.putParcelable(URI_KEY, pendingCameraUri)
-        mediaType?.let {
-            state.putInt(MEDIA_TYPE_KEY, it.ordinal)
-        }
         super.onSaveInstanceState(outState)
     }
 

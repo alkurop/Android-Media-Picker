@@ -26,13 +26,13 @@ object MediaPicker {
             resultSubjectMap.put(name, createSubject())
         }
 
-        val doerFragment = MediaPickerInternalFragment.createInstance(name)
+        val doerFragment = MediaPickerInternalFragment.createInstance(name, mediaType)
         fragmentMap.put(name, doerFragment)
 
         activity.supportFragmentManager
-                .beginTransaction()
-                .add(doerFragment, tag)
-                .commitNow()
+            .beginTransaction()
+            .add(doerFragment, tag)
+            .commitNow()
 
         doerFragment.fromGallery(mediaType)
 
@@ -44,13 +44,13 @@ object MediaPicker {
             resultSubjectMap.put(name, createSubject())
         }
 
-        val doerFragment = MediaPickerInternalFragment.createInstance(name)
+        val doerFragment = MediaPickerInternalFragment.createInstance(name, mediaType)
         fragmentMap.put(name, doerFragment)
 
         activity.supportFragmentManager
-                .beginTransaction()
-                .add(doerFragment, tag)
-                .commitNow()
+            .beginTransaction()
+            .add(doerFragment, tag)
+            .commitNow()
 
         doerFragment.fromCamera(mediaType)
 
@@ -64,21 +64,21 @@ object MediaPicker {
 
         val mediaSubscriber = resultSubjectMap[name]!!
         return mediaSubscriber
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .filter { it.isOnNext || it.isOnError }
-                .dematerialize<Pair<MediaType, Uri>>()
-                .doFinally {
-                    activity.supportFragmentManager
-                            .beginTransaction()
-                            .remove(fragmentMap[name])
-                            .commitNowAllowingStateLoss()
-                    fragmentMap.remove(name)
-                }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .filter { it.isOnNext || it.isOnError }
+            .dematerialize<Pair<MediaType, Uri>>()
+            .doFinally {
+                activity.supportFragmentManager
+                    .beginTransaction()
+                    .remove(fragmentMap[name])
+                    .commitNowAllowingStateLoss()
+                fragmentMap.remove(name)
+            }
     }
 
     private fun createSubject(): Subject<Notification<Pair<MediaType, Uri>>> =
-            PublishSubject.create()
+        PublishSubject.create()
 }
 
 enum class MediaType {
