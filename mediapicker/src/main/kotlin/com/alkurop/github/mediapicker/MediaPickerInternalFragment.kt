@@ -10,6 +10,8 @@ import android.support.v4.content.FileProvider
 import android.webkit.MimeTypeMap
 import io.reactivex.Notification
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
+import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.Subject
 import java.io.File
 
@@ -73,8 +75,8 @@ internal class MediaPickerInternalFragment : Fragment() {
     private fun getCameraIntent(mediaType: MediaType): Intent {
         val intent = Intent(if (mediaType == MediaType.PHOTO) MediaStore.ACTION_IMAGE_CAPTURE else MediaStore.ACTION_VIDEO_CAPTURE)
         val ext = if (mediaType == MediaType.PHOTO) ".jpeg" else ".mp4"
-        val createFileName = getFileDirectory(MediaPicker.imageDirectory) + createFileName(ext)
-        val authority = activity.applicationContext.packageName + ".com.alkurop.github.mediapicker.MediaFileProvider"
+        val createFileName = getFileDirectory(MediaPicker.imageDirectory) + "/" + createFileName(ext)
+        val authority = MediaPicker.getFileProviderAuthority(activity)
         pendingCameraUri = FileProvider.getUriForFile(activity, authority, File(createFileName))
 
         intent.putExtra(MediaStore.EXTRA_OUTPUT, pendingCameraUri)
@@ -88,7 +90,7 @@ internal class MediaPickerInternalFragment : Fragment() {
         intent.type = when (mediaType) {
             MediaType.PHOTO -> "image/jpeg"
             MediaType.VIDEO -> "video/mp4"
-            MediaType.AUDIO -> "audio/mp3   "
+            MediaType.AUDIO -> "audio/mp3"
         }
         return intent
     }
@@ -102,7 +104,9 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 val contentUri = data.data
                 if (contentUri !== null) {
-                    resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, contentUri)))
+                    copyToLocal(contentUri).subscribeOn(io()).observeOn(mainThread()).subscribe {
+                        resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
+                    }
                 } else {
                     resultSubject.onNext(Notification.createOnError(error))
                 }

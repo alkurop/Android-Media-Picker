@@ -1,12 +1,15 @@
-package com.alkurop.github.mediapicker
+package com.alkurop.github.me
 
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.alkurop.github.mediapicker.MediaPicker
+import com.alkurop.github.mediapicker.MediaType
 import com.github.alkurop.jpermissionmanager.PermissionOptionalDetails
 import com.github.alkurop.jpermissionmanager.PermissionsManager
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -17,6 +20,8 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
         Timber.d("$it")
     }
+
+    val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +54,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        MediaPicker.getResult(this)
-                .subscribe({
-                    subscriber.invoke(it)
-                }, { Timber.e(it) })
+        val disposable = MediaPicker.getResult(this)
+            .subscribe({
+                           subscriber.invoke(it)
+                       }, { Timber.e(it) })
+        compositeDisposable.addAll(disposable)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -112,5 +118,10 @@ class MainActivity : AppCompatActivity() {
             onSuccessOperator.invoke()
         }
         permissionMananager.makePermissionRequest()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 }

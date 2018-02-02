@@ -6,7 +6,7 @@
 
     <application >
         <provider
-            android:name=".MediaFileProvider"
+            android:name="com.alkurop.github.mediapicker.MediaFileProvider"
             android:authorities="${applicationId}.com.alkurop.github.mediapicker.MediaFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">

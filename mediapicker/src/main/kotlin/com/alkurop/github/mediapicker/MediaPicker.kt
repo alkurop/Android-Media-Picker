@@ -1,5 +1,6 @@
 package com.alkurop.github.mediapicker
 
+import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
@@ -11,13 +12,16 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 
 object MediaPicker {
-    private val mainFolder = "TestAPP"
-    private val sdCardPath = Environment.getExternalStorageDirectory()
+    var mainFolder = "MediaPicker"
+    private val sdCardPath = Environment.getExternalStorageDirectory().absolutePath
     private const val tag = "MediaPicker_Tag"
     internal val resultSubjectMap = hashMapOf<String, Subject<Notification<Pair<MediaType, Uri>>>>()
     private val fragmentMap = hashMapOf<String, MediaPickerInternalFragment>()
+    internal var imageDirectory: String = "${sdCardPath}/${mainFolder}"
 
-    var imageDirectory: String = "$sdCardPath/$mainFolder"
+    fun getFileProviderAuthority(context: Context): String {
+        return context.applicationContext.packageName + ".com.alkurop.github.mediapicker.MediaFileProvider"
+    }
 
     fun fromGallery(activity: AppCompatActivity, mediaType: MediaType) {
         val name = activity.localClassName
