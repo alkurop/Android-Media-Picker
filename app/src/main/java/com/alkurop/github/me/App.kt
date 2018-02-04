@@ -1,4 +1,4 @@
-package com.alkurop.github.mediapicker
+package com.alkurop.github.me
 
 import android.app.Application
 import timber.log.Timber
