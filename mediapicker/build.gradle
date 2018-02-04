@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:appcompat-v7:$supportVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rx_version"
+    compileOnly "com.android.support:appcompat-v7:$supportVersion"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly "io.reactivex.rxjava2:rxandroid:$rx_version"
 }
