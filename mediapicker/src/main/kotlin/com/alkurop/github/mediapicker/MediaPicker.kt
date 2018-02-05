@@ -13,11 +13,11 @@ import io.reactivex.subjects.Subject
 
 object MediaPicker {
     var mainFolder = "MediaPicker"
-    private val sdCardPath = Environment.getExternalStorageDirectory().absolutePath
+    val sdCardPath = Environment.getExternalStorageDirectory().absolutePath
     private const val tag = "MediaPicker_Tag"
     internal val resultSubjectMap = hashMapOf<String, Subject<Notification<Pair<MediaType, Uri>>>>()
     private val fragmentMap = hashMapOf<String, MediaPickerInternalFragment>()
-    internal var imageDirectory: String = "${sdCardPath}/${mainFolder}"
+    var fileDirectory: String = "${sdCardPath}/${mainFolder}"
 
     fun getFileProviderAuthority(context: Context): String {
         return context.applicationContext.packageName + ".com.alkurop.github.mediapicker.MediaFileProvider"

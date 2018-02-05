@@ -75,7 +75,7 @@ internal class MediaPickerInternalFragment : Fragment() {
     private fun getCameraIntent(mediaType: MediaType): Intent {
         val intent = Intent(if (mediaType == MediaType.PHOTO) MediaStore.ACTION_IMAGE_CAPTURE else MediaStore.ACTION_VIDEO_CAPTURE)
         val ext = if (mediaType == MediaType.PHOTO) ".jpeg" else ".mp4"
-        val createFileName = getFileDirectory(MediaPicker.imageDirectory) + "/" + createFileName(ext)
+        val createFileName = getFileDirectory(MediaPicker.fileDirectory) + "/" + createFileName(ext)
         val authority = MediaPicker.getFileProviderAuthority(activity.applicationContext)
         pendingCameraUri = FileProvider.getUriForFile(activity, authority, File(createFileName))
 
@@ -139,7 +139,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 "." + ext
             }
-            val file = File(getFileDirectory(MediaPicker.imageDirectory), createFileName(ext))
+            val file = File(getFileDirectory(MediaPicker.fileDirectory), createFileName(ext))
             file.outputStream().buffered().use { bufferedOutputStream ->
                 contentResolver.openInputStream(uri).buffered().use { bufferedInputStream ->
                     bufferedInputStream.copyTo(bufferedOutputStream)
