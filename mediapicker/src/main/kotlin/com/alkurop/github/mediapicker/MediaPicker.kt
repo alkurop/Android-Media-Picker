@@ -88,5 +88,6 @@ object MediaPicker {
 enum class MediaType {
     PHOTO,
     VIDEO,
-    AUDIO
+    AUDIO,
+    LOADING
 }

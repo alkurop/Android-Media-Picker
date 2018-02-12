@@ -106,6 +106,9 @@ internal class MediaPickerInternalFragment : Fragment() {
             MediaType.PHOTO -> "image/jpeg"
             MediaType.VIDEO -> "video/mp4"
             MediaType.AUDIO -> "audio/mp3"
+            else -> {
+                ""
+            }
         }
         return intent
     }
@@ -128,6 +131,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             }
         } else if (requestCode == CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             if (pendingCameraUri != null) {
+                resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, pendingCameraUri!!)))
 
                 Completable.fromAction { handleSamplingAndRotationBitmap(context, pendingCameraUri!!) }
                     .subscribeOn(io())
