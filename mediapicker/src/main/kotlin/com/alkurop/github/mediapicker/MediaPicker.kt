@@ -36,7 +36,7 @@ object MediaPicker {
         activity.supportFragmentManager
             .beginTransaction()
             .add(doerFragment, tag)
-            .commitNow()
+            .commitNowAllowingStateLoss()
 
         doerFragment.fromGallery(mediaType)
 
@@ -54,7 +54,7 @@ object MediaPicker {
         activity.supportFragmentManager
             .beginTransaction()
             .add(doerFragment, tag)
-            .commitNow()
+            .commitNowAllowingStateLoss()
 
         doerFragment.fromCamera(mediaType)
 
