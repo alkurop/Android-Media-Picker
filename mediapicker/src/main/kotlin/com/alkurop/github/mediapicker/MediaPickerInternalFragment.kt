@@ -3,31 +3,25 @@ package com.alkurop.github.mediapicker
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v4.content.FileProvider
 import android.webkit.MimeTypeMap
+import io.reactivex.Completable
 import io.reactivex.Notification
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.Subject
 import java.io.File
-import android.media.ExifInterface
-import android.os.Build
-import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.BitmapFactory
-import android.R.array
-import android.R.attr.bitmap
-import android.opengl.ETC1.getHeight
-import io.reactivex.Completable
-import java.io.ByteArrayInputStream
 import java.io.FileOutputStream
-import java.nio.ByteBuffer
-import java.nio.channels.Channels
 
 
 internal class MediaPickerInternalFragment : Fragment() {
@@ -106,6 +100,9 @@ internal class MediaPickerInternalFragment : Fragment() {
             MediaType.PHOTO -> "image/jpeg"
             MediaType.VIDEO -> "video/mp4"
             MediaType.AUDIO -> "audio/mp3"
+            else -> {
+                ""
+            }
         }
         return intent
     }
@@ -119,6 +116,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 val contentUri = data.data
                 if (contentUri !== null) {
+                    resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, pendingCameraUri!!)))
                     copyToLocal(contentUri).subscribeOn(io()).observeOn(mainThread()).subscribe {
                         resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
                     }
@@ -128,6 +126,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             }
         } else if (requestCode == CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             if (pendingCameraUri != null) {
+                resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, pendingCameraUri!!)))
 
                 Completable.fromAction { handleSamplingAndRotationBitmap(context, pendingCameraUri!!) }
                     .subscribeOn(io())
