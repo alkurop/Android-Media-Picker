@@ -1,6 +1,7 @@
 package com.alkurop.github.mediapicker
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,6 +15,20 @@ import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
 import io.reactivex.schedulers.Schedulers.io
 import io.reactivex.subjects.Subject
 import java.io.File
+import android.media.ExifInterface
+import android.os.Build
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.BitmapFactory
+import android.R.array
+import android.R.attr.bitmap
+import android.opengl.ETC1.getHeight
+import io.reactivex.Completable
+import java.io.ByteArrayInputStream
+import java.io.FileOutputStream
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+
 
 internal class MediaPickerInternalFragment : Fragment() {
 
@@ -114,9 +129,16 @@ internal class MediaPickerInternalFragment : Fragment() {
         } else if (requestCode == CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             if (pendingCameraUri != null) {
 
-                galleryAddPic(pendingCameraUri!!)
-                resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, pendingCameraUri!!)))
+                Completable.fromAction { handleSamplingAndRotationBitmap(context, pendingCameraUri!!) }
+                    .subscribeOn(io())
+                    .observeOn(mainThread())
+                    .subscribe({
+                                   galleryAddPic(pendingCameraUri!!)
+                                   resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, pendingCameraUri!!)))
+                               }, {
+                                   resultSubject.onNext(Notification.createOnError(it))
 
+                               })
             } else {
                 resultSubject.onNext(Notification.createOnError(error))
             }
@@ -127,7 +149,6 @@ internal class MediaPickerInternalFragment : Fragment() {
         handleResult(requestCode, resultCode, data)
     }
 
-    //unused method. If you decide to use ut plz add comment why
     private fun copyToLocal(uri: Uri): Observable<Uri> {
         return Observable.fromCallable {
             val contentResolver = activity.contentResolver
@@ -154,6 +175,48 @@ internal class MediaPickerInternalFragment : Fragment() {
         val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         mediaScanIntent.data = contentUri
         activity.sendBroadcast(mediaScanIntent)
+    }
+
+    fun handleSamplingAndRotationBitmap(context: Context, selectedImage: Uri) {
+
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        val path = MediaPicker.fileDirectory + "/" + selectedImage.lastPathSegment
+        val img = BitmapFactory.decodeFile(path)
+        val rotateImg = rotateImageIfRequired(context, img, selectedImage) ?: return
+
+        val out = FileOutputStream(path)
+        out.use {
+            rotateImg.compress(Bitmap.CompressFormat.JPEG, 80, out)
+        }
+    }
+
+
+    private fun rotateImageIfRequired(context: Context, img: Bitmap, selectedImage: Uri): Bitmap? {
+
+        val input = context.contentResolver.openInputStream(selectedImage)
+        val ei: ExifInterface
+        if (Build.VERSION.SDK_INT > 23)
+            ei = ExifInterface(input)
+        else
+            ei = ExifInterface(selectedImage.path)
+
+        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> return rotateImage(img, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> return rotateImage(img, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> return rotateImage(img, 270f)
+            else -> return null
+        }
+    }
+
+    private fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degree)
+        val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+        img.recycle()
+        return rotatedImg
     }
 
 }

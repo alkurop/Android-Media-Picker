@@ -4,6 +4,7 @@ buildscript {
     ext.kotlin_version = '1.2.21'
     ext.supportVersion = "26.1.0"
     ext.rx_version = "2.0.1"
+    ext.picasso = "2.5.2"
 
     ext.compileSdkVersion = 26
     ext.buildToolsVersion = "26.0.2"

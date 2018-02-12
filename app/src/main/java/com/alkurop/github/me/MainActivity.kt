@@ -9,6 +9,7 @@ import com.alkurop.github.mediapicker.MediaPicker
 import com.alkurop.github.mediapicker.MediaType
 import com.github.alkurop.jpermissionmanager.PermissionOptionalDetails
 import com.github.alkurop.jpermissionmanager.PermissionsManager
+import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     val subscriber: ((Pair<MediaType, Uri>) -> Unit) = {
         Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
         Timber.d("$it")
+        Picasso.with(this).load(it.second).into(img)
     }
 
     val compositeDisposable = CompositeDisposable()
@@ -57,7 +59,9 @@ class MainActivity : AppCompatActivity() {
         val disposable = MediaPicker.getResult(this)
             .subscribe({
                            subscriber.invoke(it)
-                       }, { Timber.e(it) })
+                       }, {
+                           Timber.e(it)
+                       })
         compositeDisposable.addAll(disposable)
     }
 
@@ -71,19 +75,21 @@ class MainActivity : AppCompatActivity() {
         permissionMananager.clearPermissions()
 
         val permissionCameraDetails = PermissionOptionalDetails(
-                "camera",
-                "camera"
+            "camera",
+            "camera"
         )
 
         val permissionStorageDetails = PermissionOptionalDetails(
-                "storage",
-                "storage"
+            "storage",
+            "storage"
         )
 
-        permissionMananager.addPermissions(mapOf(
+        permissionMananager.addPermissions(
+            mapOf(
                 Pair(Manifest.permission.CAMERA, permissionCameraDetails),
                 Pair(Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionStorageDetails)
-        ))
+            )
+        )
 
         permissionMananager.addPermissionsListener {
             for (mutableEntry in it) {
@@ -101,13 +107,15 @@ class MainActivity : AppCompatActivity() {
         permissionMananager.clearPermissions()
 
         val permissionStorageDetails = PermissionOptionalDetails(
-                "storage",
-                "storage"
+            "storage",
+            "storage"
         )
 
-        permissionMananager.addPermissions(mapOf(
+        permissionMananager.addPermissions(
+            mapOf(
                 Pair(Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionStorageDetails)
-        ))
+            )
+        )
 
         permissionMananager.addPermissionsListener {
             for (mutableEntry in it) {
