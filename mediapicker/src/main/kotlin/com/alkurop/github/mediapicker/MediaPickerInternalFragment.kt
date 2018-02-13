@@ -44,7 +44,7 @@ internal class MediaPickerInternalFragment : Fragment() {
     }
 
     private var pendingCameraUri: Uri? = null
-    private lateinit var resultSubject: Subject<Notification<Pair<MediaType, Uri>>>
+    private lateinit var resultSubject: Subject<Notification<Pair<MediaType, Uri?>>>
     private var mediaType: MediaType? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,7 +116,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             } else {
                 val contentUri = data.data
                 if (contentUri !== null) {
-                    resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, pendingCameraUri!!)))
+                    resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, null)))
                     copyToLocal(contentUri).subscribeOn(io()).observeOn(mainThread()).subscribe {
                         resultSubject.onNext(Notification.createOnNext(Pair(mediaType!!, it)))
                     }
@@ -126,7 +126,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             }
         } else if (requestCode == CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             if (pendingCameraUri != null) {
-                resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, pendingCameraUri!!)))
+                resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, null)))
 
                 Completable.fromAction { handleSamplingAndRotationBitmap(context, pendingCameraUri!!) }
                     .subscribeOn(io())

@@ -15,7 +15,7 @@ object MediaPicker {
     var mainFolder = "MediaPicker"
     val sdCardPath = Environment.getExternalStorageDirectory().absolutePath
     private const val tag = "MediaPicker_Tag"
-    internal val resultSubjectMap = hashMapOf<String, Subject<Notification<Pair<MediaType, Uri>>>>()
+    internal val resultSubjectMap = hashMapOf<String, Subject<Notification<Pair<MediaType, Uri?>>>>()
     private val fragmentMap = hashMapOf<String, MediaPickerInternalFragment>()
     var fileDirectory: String = "${sdCardPath}/${mainFolder}"
 
@@ -81,7 +81,7 @@ object MediaPicker {
             }
     }
 
-    private fun createSubject(): Subject<Notification<Pair<MediaType, Uri>>> =
+    private fun createSubject(): Subject<Notification<Pair<MediaType, Uri?>>> =
         PublishSubject.create()
 }
 
