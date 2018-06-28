@@ -50,16 +50,20 @@ internal class MediaPickerInternalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingCameraUri = savedInstanceState?.getParcelable(URI_KEY)
-        val string = arguments.getString(SUBSCRIBER_NAME)
-        resultSubject = MediaPicker.resultSubjectMap[string]!!
-        arguments.getInt(MEDIA_TYPE_KEY, -1).takeIf { it != -1 }?.let {
+        val name = arguments!!.getString(SUBSCRIBER_NAME)
+
+        if (MediaPicker.resultSubjectMap.containsKey(name).not()) {
+            MediaPicker.resultSubjectMap[name] = MediaPicker.createSubject()
+        }
+
+        resultSubject = MediaPicker.resultSubjectMap[name]!!
+        arguments!!.getInt(MEDIA_TYPE_KEY, -1).takeIf { it != -1 }?.let {
             mediaType = MediaType.values()[it]
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        val state = outState ?: Bundle()
-        state.putParcelable(URI_KEY, pendingCameraUri)
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(URI_KEY, pendingCameraUri)
         super.onSaveInstanceState(outState)
     }
 
@@ -85,8 +89,8 @@ internal class MediaPickerInternalFragment : Fragment() {
         val intent = Intent(if (mediaType == MediaType.PHOTO) MediaStore.ACTION_IMAGE_CAPTURE else MediaStore.ACTION_VIDEO_CAPTURE)
         val ext = if (mediaType == MediaType.PHOTO) ".jpeg" else ".mp4"
         val createFileName = getFileDirectory(MediaPicker.fileDirectory) + "/" + createFileName(ext)
-        val authority = MediaPicker.getFileProviderAuthority(activity.applicationContext)
-        pendingCameraUri = FileProvider.getUriForFile(activity, authority, File(createFileName))
+        val authority = MediaPicker.getFileProviderAuthority(activity!!.applicationContext)
+        pendingCameraUri = FileProvider.getUriForFile(activity!!, authority, File(createFileName))
 
         intent.putExtra(MediaStore.EXTRA_OUTPUT, pendingCameraUri)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -128,7 +132,7 @@ internal class MediaPickerInternalFragment : Fragment() {
             if (pendingCameraUri != null) {
                 resultSubject.onNext(Notification.createOnNext(Pair(MediaType.LOADING, null)))
 
-                Completable.fromAction { handleSamplingAndRotationBitmap(context, pendingCameraUri!!) }
+                Completable.fromAction { handleSamplingAndRotationBitmap(context!!, pendingCameraUri!!) }
                     .subscribeOn(io())
                     .observeOn(mainThread())
                     .subscribe({
@@ -150,7 +154,7 @@ internal class MediaPickerInternalFragment : Fragment() {
 
     private fun copyToLocal(uri: Uri): Observable<Uri> {
         return Observable.fromCallable {
-            val contentResolver = activity.contentResolver
+            val contentResolver = activity!!.contentResolver
             val type = contentResolver.getType(uri)
             val singleton = MimeTypeMap.getSingleton()
             var ext = singleton.getExtensionFromMimeType(type)
@@ -173,7 +177,7 @@ internal class MediaPickerInternalFragment : Fragment() {
     private fun galleryAddPic(contentUri: Uri) {
         val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
         mediaScanIntent.data = contentUri
-        activity.sendBroadcast(mediaScanIntent)
+        activity!!.sendBroadcast(mediaScanIntent)
     }
 
     fun handleSamplingAndRotationBitmap(context: Context, selectedImage: Uri) {

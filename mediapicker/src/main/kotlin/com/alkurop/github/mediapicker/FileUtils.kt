@@ -3,7 +3,7 @@ package com.alkurop.github.mediapicker
 import java.io.File
 
 
-fun getFileDirectory(imageDirectory:String): String {
+fun getFileDirectory(imageDirectory: String): String {
     if (!File(imageDirectory).exists()) {
         !File(imageDirectory).mkdirs()
     }

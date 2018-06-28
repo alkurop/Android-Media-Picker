@@ -81,7 +81,7 @@ object MediaPicker {
             }
     }
 
-    private fun createSubject(): Subject<Notification<Pair<MediaType, Uri?>>> =
+    fun createSubject(): Subject<Notification<Pair<MediaType, Uri?>>> =
         PublishSubject.create()
 }
 
