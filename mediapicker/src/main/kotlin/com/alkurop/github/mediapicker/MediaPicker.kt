@@ -73,11 +73,14 @@ object MediaPicker {
             .filter { it.isOnNext || it.isOnError }
             .dematerialize<Pair<MediaType, Uri>>()
             .doFinally {
-                activity.supportFragmentManager
-                    .beginTransaction()
-                    .remove(fragmentMap[name])
-                    .commitNowAllowingStateLoss()
-                fragmentMap.remove(name)
+                val fragment = fragmentMap[name]
+                fragment?.let {
+                    activity.supportFragmentManager
+                        .beginTransaction()
+                        .remove(fragmentMap[name])
+                        .commitNowAllowingStateLoss()
+                    fragmentMap.remove(name)
+                }
             }
     }
 

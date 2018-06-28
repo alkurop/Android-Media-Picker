@@ -42,12 +42,12 @@ class MainActivity : AppCompatActivity() {
         }
         videoFromCam.setOnClickListener {
             askGaleryPermissions {
-                MediaPicker.fromGallery(this, MediaType.VIDEO)
+                MediaPicker.fromCamera(this, MediaType.VIDEO)
             }
         }
         videoFromGal.setOnClickListener {
             askGaleryPermissions {
-                MediaPicker.fromCamera(this, MediaType.VIDEO)
+                MediaPicker.fromGallery(this, MediaType.VIDEO)
             }
         }
         imageFromCam.setOnClickListener {
